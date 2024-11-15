@@ -14,7 +14,7 @@ export const API_OK = "success";
 export const API_ERROR = "fail";
 
 export function testAPI(token) {
-  return fetch("https://serv.amazingmarvin.com/api/test", {
+  return fetch("http://localhost:12082/api/test", {
     method: "POST",
     headers: {
       AMVIA: "ext",
@@ -24,7 +24,7 @@ export function testAPI(token) {
 }
 
 export async function verifyToken(token) {
-  const res = await fetch("https://serv.amazingmarvin.com/api/test", {
+  const res = await fetch("http://localhost:12082/api/test", {
     method: "POST",
     headers: {
       AMVIA: "ext",
@@ -39,7 +39,7 @@ export async function verifyToken(token) {
   if (!res.ok) {
     // Check if user provided X-Full-Access-Token
 
-    const res = await fetch("https://serv.amazingmarvin.com/api/test", {
+    const res = await fetch("http://localhost:12082/api/test", {
       method: "POST",
       headers: {
         AMVIA: "ext",
@@ -60,7 +60,7 @@ export async function verifyToken(token) {
 export async function getTasks(token, day) {
   const fixedDay = formatDate(day);
   const res = await fetch(
-    `https://serv.amazingmarvin.com/api/todayItems?date=${fixedDay}`,
+    `http://localhost:12082/api/todayItems?date=${fixedDay}`,
     {
       method: "GET",
       headers: {
@@ -85,7 +85,7 @@ export async function getTasks(token, day) {
   }
 }
 
-// Needed to add "host_permissions": ["https://serv.amazingmarvin.com/api/*"], to Manifest in order for markDone to work
+// Needed to add "host_permissions": ["http://localhost:12082/api/*"], to Manifest in order for markDone to work
 // https://stackoverflow.com/questions/64732755/access-to-fetch-has-been-blocked-by-cors-policy-chrome-extension-error
 
 export async function markDone(token, id) {
@@ -95,7 +95,7 @@ export async function markDone(token, id) {
     timeZoneOffset,
   };
 
-  const res = await fetch(`https://serv.amazingmarvin.com/api/markDone`, {
+  const res = await fetch(`http://localhost:12082/api/markDone`, {
     method: "POST",
     headers: {
       AMVIA: "ext",
@@ -120,7 +120,7 @@ export async function markDone(token, id) {
 export async function getCategories() {
   let token = await getStoredToken().then((token) => token);
 
-  const res = await fetch(`https://serv.amazingmarvin.com/api/categories`, {
+  const res = await fetch(`http://localhost:12082/api/categories`, {
     method: "GET",
     headers: {
       AMVIA: "ext",
@@ -142,7 +142,7 @@ export async function getCategories() {
 export async function getLabels() {
   let token = await getStoredToken().then((token) => token);
 
-  const res = await fetch(`https://serv.amazingmarvin.com/api/labels`, {
+  const res = await fetch(`http://localhost:12082/api/labels`, {
     method: "GET",
     headers: {
       AMVIA: "ext",
@@ -165,7 +165,7 @@ export async function getCustomSections() {
   let token = await getStoredToken().then((token) => token);
 
   const res = await fetch(
-    `https://serv.amazingmarvin.com/api/doc?id=strategySettings.customStructure`,
+    `http://localhost:12082/api/doc?id=strategySettings.customStructure`,
     {
       method: "GET",
       headers: {
@@ -190,7 +190,7 @@ export async function getDefaultCustomSection() {
   let token = await getStoredToken().then((token) => token);
 
   const res = await fetch(
-    `https://serv.amazingmarvin.com/api/doc?id=strategySettings.defaultCustomSection`,
+    `http://localhost:12082/api/doc?id=strategySettings.defaultCustomSection`,
     {
       method: "GET",
       headers: {
@@ -215,7 +215,7 @@ export async function addTask(data) {
   data.timeZoneOffset = new Date().getTimezoneOffset();
 
   try {
-    const res = await fetch(`https://serv.amazingmarvin.com/api/addTask`, {
+    const res = await fetch(`http://localhost:12082/api/addTask`, {
       method: "POST",
       headers: {
         AMVIA: "ext",
