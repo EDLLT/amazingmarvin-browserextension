@@ -215,17 +215,12 @@ export async function addTask(data) {
   data.timeZoneOffset = new Date().getTimezoneOffset();
 
   try {
-    const res = await fetch(`http://localhost:12082/api/addTask`, {
-      method: "POST",
-      headers: {
-        AMVIA: "ext",
-        "Content-Type": "application/json",
-        ...token,
-      },
-      body: JSON.stringify(data),
+    const response = await chrome.runtime.sendMessage({
+      type: 'addTask',
+      token,
+      data
     });
-
-    return res.ok ? API_OK : API_ERROR;
+    return response;
   } catch (err) {
     return API_ERROR;
   }

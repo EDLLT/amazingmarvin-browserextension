@@ -1,4 +1,4 @@
-import { addTask, getTasks } from "../utils/api";
+import { addTask, getTasks, API_OK, API_ERROR } from "../utils/api";
 import {
   getStoredToken,
   getStoredLabels,
@@ -163,11 +163,27 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   }, 1000);
 });
 
-chrome.runtime.onMessage.addListener(async function (
-  request,
-  sender,
-  sendResponse
-) {
+chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
+  if (request.type === 'addTask') {
+    try {
+      const res = await fetch(`http://localhost:12082/api/addTask`, {
+        method: "POST",
+        headers: {
+          AMVIA: "ext",
+          "Content-Type": "application/json",
+          ...request.token,
+        },
+        body: JSON.stringify(request.data),
+      });
+
+      sendResponse(res.ok ? API_OK : API_ERROR);
+      return true;
+    } catch (err) {
+      sendResponse(API_ERROR);
+      return true;
+    }
+  }
+
   let token = await getStoredToken();
   let data = {
     done: false,
