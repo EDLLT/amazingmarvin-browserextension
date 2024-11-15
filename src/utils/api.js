@@ -214,14 +214,13 @@ export async function addTask(data) {
   let token = await getStoredToken().then((token) => token);
   data.timeZoneOffset = new Date().getTimezoneOffset();
 
-  try {
-    const response = await chrome.runtime.sendMessage({
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({
       type: 'addTask',
       token,
       data
+    }, response => {
+      resolve(response); // Will be either API_OK or API_ERROR
     });
-    return response;
-  } catch (err) {
-    return API_ERROR;
-  }
+  });
 }

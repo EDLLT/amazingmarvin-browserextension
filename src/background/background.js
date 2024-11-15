@@ -163,83 +163,91 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   }, 1000);
 });
 
-chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === 'addTask') {
-    try {
-      const res = await fetch(`http://localhost:12082/api/addTask`, {
-        method: "POST",
-        headers: {
-          AMVIA: "ext",
-          "Content-Type": "application/json",
-          ...request.token,
-        },
-        body: JSON.stringify(request.data),
-      });
-
+    fetch(`http://localhost:12082/api/addTask`, {
+      method: "POST",
+      headers: {
+        AMVIA: "ext",
+        "Content-Type": "application/json",
+        ...request.token,
+      },
+      body: JSON.stringify(request.data),
+    })
+    .then(res => {
       sendResponse(res.ok ? API_OK : API_ERROR);
-      return true;
-    } catch (err) {
+    })
+    .catch(() => {
       sendResponse(API_ERROR);
-      return true;
-    }
+    });
+
+    return true;
   }
 
-  let token = await getStoredToken();
-  let data = {
-    done: false,
-  };
+  (async () => {
+    try {
+      let token = await getStoredToken();
+      let data = {
+        done: false,
+      };
 
-  let scheduleForToday = await getStoredGmailSettings().then(
-    (gmailSettings) => gmailSettings.scheduleForToday
-  );
+      let scheduleForToday = await getStoredGmailSettings().then(
+        (gmailSettings) => gmailSettings.scheduleForToday
+      );
 
-  if (scheduleForToday) data.day = formatDate(new Date());
+      if (scheduleForToday) data.day = formatDate(new Date());
 
-  const getTabUrl = () => {
-    return new Promise((resolve, reject) => {
-      chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
-        let url = tabs[0].url;
-        resolve(url);
-      });
-    });
-  };
+      const getTabUrl = () => {
+        return new Promise((resolve) => {
+          chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
+            let url = tabs[0].url;
+            resolve(url);
+          });
+        });
+      };
 
-  if (request.message === "sendTaskFromTable") {
-    getTabUrl().then((url) => {
-      let emailUrl = url.split("#")[0] + "#inbox/" + request.emailLink;
-      data.title = `[${request.emailSubject}](${emailUrl})`;
-      addTask(data).then((message) => {
-        if (message === "success") {
-          Promise.resolve();
+      if (request.message === "sendTaskFromTable") {
+        getTabUrl().then((url) => {
+          let emailUrl = url.split("#")[0] + "#inbox/" + request.emailLink;
+          data.title = `[${request.emailSubject}](${emailUrl})`;
+          addTask(data).then((message) => {
+            if (message === "success") {
+              Promise.resolve();
+            }
+          });
+        });
+      }
+
+      if (request.message === "sendTaskFromSingleView") {
+        getTabUrl().then((url) => {
+          data.title = `[${request.emailSubject}](${url})`;
+          addTask(data).then((message) => {
+            if (message === "success") {
+              Promise.resolve();
+            }
+          });
+        });
+      }
+
+      if (request.message === "toggleBadge") {
+        const badgeSettings = await getStoredBadgeSettings();
+
+        if (!badgeSettings?.displayBadge || !token) {
+          clearBadge();
+          return;
         }
-      });
-    });
-  }
 
-  if (request.message === "sendTaskFromSingleView") {
-    getTabUrl().then((url) => {
-      data.title = `[${request.emailSubject}](${url})`;
-      addTask(data).then((message) => {
-        if (message === "success") {
-          Promise.resolve();
+        const { ok, tasks } = await getTasks(token, new Date());
+        if (ok) {
+          setBadge(tasks.length);
+        } else {
+          clearBadge();
         }
-      });
-    });
-  }
-
-  if (request.message === "toggleBadge") {
-    const badgeSettings = await getStoredBadgeSettings();
-
-    if (!badgeSettings?.displayBadge || !token) {
-      clearBadge();
-      return;
+      }
+    } catch (error) {
+      console.error('Error:', error);
     }
+  })();
 
-    const { ok, status, tasks } = await getTasks(token, new Date());
-    if (ok) {
-      setBadge(tasks.length);
-    } else {
-      clearBadge();
-    }
-  }
+  return true;
 });
