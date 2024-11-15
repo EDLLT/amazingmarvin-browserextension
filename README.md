@@ -103,7 +103,7 @@ it in your browser. Building requires `node` (tested with v14 and higher), and
    ```sh
    npm install
    ```
-3. Run build script
+3. Build for Chromium based browsers
    ```sh
     npm run build
     ```
@@ -121,11 +121,11 @@ it in your browser. Building requires `node` (tested with v14 and higher), and
 To load the extension, go to the extensions page in your browser. For Chrome,
 you can go to `chrome://extensions/` and for Edge, you can go to
 `edge://extensions/`. Once you're there, click on the "Load unpacked" button
-and select the `dist/dev` folder from the project. If you don't see the "Load
+and select the `out/prod` folder from the project. If you don't see the "Load
 unpacked" button, be sure to toggle "Developer mode".
 
 In Firefox, open `about:debugging#/runtime/this-firefox` and click "Load
-Temporary Add-On..." and select the `dist_ff` folder from the project.
+Temporary Add-On..." and select the `out/ff` folder from the project.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
