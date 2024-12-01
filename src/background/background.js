@@ -165,7 +165,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === 'addTask') {
-    fetch(`http://localhost:12082/api/addTask`, {
+    fetch(`http://192.168.1.231:12082/api/addTask`, {
       method: "POST",
       headers: {
         AMVIA: "ext",
